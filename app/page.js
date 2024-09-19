@@ -1,4 +1,4 @@
-import Chat from './chat/page';
+import Chat from './chat/Page';
 
 export default function Home() {
   return (

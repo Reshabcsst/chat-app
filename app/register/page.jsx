@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { registerRoute } from "../Utils/APIRoutes";
 import Logo from "../public/logo.png"; 
 
-export default function page() {
+export default function Page() {
   const router = useRouter();
   const toastOptions = {
     position: "bottom-right",

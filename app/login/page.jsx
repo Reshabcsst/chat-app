@@ -10,7 +10,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { loginRoute } from "../Utils/APIRoutes";
 
-export default function page() {
+export default function Page() {
     const router = useRouter();
     const [values, setValues] = useState({ username: "", password: "" });
     const toastOptions = {
