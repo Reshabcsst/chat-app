@@ -1,4 +1,3 @@
-// pages/register/page.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";

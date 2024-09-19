@@ -9,13 +9,12 @@ import ChatContainer from "../components/ChatContainer";
 import Contacts from "../components/Contacts";
 import Welcome from "../components/Welcome";
 
-export default function page() {
+export default function Page() {
   const router = useRouter(); 
   const socket = useRef();
   const [contacts, setContacts] = useState([]);
   const [currentChat, setCurrentChat] = useState(undefined);
   const [currentUser, setCurrentUser] = useState(undefined);
-
 
   useEffect(() => {
     const checkUser = async () => {
@@ -60,18 +59,16 @@ export default function page() {
   };
 
   return (
-    <>
-      <Container>
-        <div className="container">
-          <Contacts contacts={contacts} changeChat={handleChatChange} />
-          {currentChat === undefined ? (
-            <Welcome />
-          ) : (
-            <ChatContainer currentChat={currentChat} socket={socket} />
-          )}
-        </div>
-      </Container>
-    </>
+    <Container>
+      <div className="container">
+        <Contacts contacts={contacts} changeChat={handleChatChange} />
+        {currentChat === undefined ? (
+          <Welcome />
+        ) : (
+          <ChatContainer currentChat={currentChat} socket={socket} />
+        )}
+      </div>
+    </Container>
   );
 }
 
