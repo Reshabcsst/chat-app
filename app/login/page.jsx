@@ -88,7 +88,7 @@ export default function Page() {
                     />
                     <button type="submit">Log In</button>
                     <span>
-                        Don't have an account? <Link href="/register">Create One.</Link> 
+                        Don&apos;t have an account? <Link href="/register">Create One.</Link> 
                     </span>
                 </form>
             </FormContainer>
