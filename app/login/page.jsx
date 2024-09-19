@@ -88,7 +88,7 @@ export default function Page() {
                     />
                     <button type="submit">Log In</button>
                     <span>
-                        Don't have an account? <Link href="/register">Create One.</Link> {/* Use Next.js Link */}
+                        Don't have an account? <Link href="/register">Create One.</Link> 
                     </span>
                 </form>
             </FormContainer>
