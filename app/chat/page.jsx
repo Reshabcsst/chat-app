@@ -47,7 +47,7 @@ export default function Page() {
           const data = await axios.get(`${allUsersRoute}/${currentUser._id}`);
           setContacts(data.data);
         } else {
-          router.push("/setAvatar");
+          router.push("/set-avatar");
         }
       }
     };
