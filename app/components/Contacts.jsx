@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Image from "next/image"; 
+import Image from "next/image";
 import Logo from "../public/logo.png";
 
 export default function Contacts({ contacts, changeChat }) {
@@ -32,16 +32,15 @@ export default function Contacts({ contacts, changeChat }) {
         <Container>
           <div className="brand">
             <Image src={Logo} alt="logo" />
-            <h3>snappy</h3>
+            <h3>REZA</h3>
           </div>
           <div className="contacts">
             {contacts.map((contact, index) => {
               return (
                 <div
                   key={contact._id}
-                  className={`contact ${
-                    index === currentSelected ? "selected" : ""
-                  }`}
+                  className={`contact ${index === currentSelected ? "selected" : ""
+                    }`}
                   onClick={() => changeCurrentChat(index, contact)}
                 >
                   <div className="avatar">
@@ -86,6 +85,7 @@ const Container = styled.div`
     justify-content: center;
     img {
       height: 2rem;
+      width:fit-content;
     }
     h3 {
       color: white;
@@ -110,7 +110,7 @@ const Container = styled.div`
       background-color: #ffffff34;
       min-height: 5rem;
       cursor: pointer;
-      width: 90%;
+      width: 100%;
       border-radius: 0.2rem;
       padding: 0.4rem;
       display: flex;
@@ -136,13 +136,15 @@ const Container = styled.div`
   .current-user {
     background-color: #0d0d30;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    gap: 2rem;
+    gap: .6rem;
     .avatar {
       img {
-        height: 4rem;
+        max-height: 4rem;
+        min-height:3rem;
         max-inline-size: 100%;
+        margin:20px;
       }
     }
     .username {
