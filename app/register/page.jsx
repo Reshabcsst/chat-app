@@ -84,7 +84,7 @@ export default function Page() {
         <form action="" onSubmit={(event) => handleSubmit(event)}>
           <div className="brand">
             <Image src={Logo} alt="logo" width={80} height={80} />
-            <h1>snappy</h1>
+            <h1>REZA</h1>
           </div>
           <input
             type="text"
