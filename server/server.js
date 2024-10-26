@@ -48,7 +48,7 @@ app.prepare().then(() => {
         return handle(req, res);
     });
 
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT || "https://chat-app-a9vb.onrender.com";
     const httpServer = server.listen(port, () => {
         console.log(`Server started on http://localhost:${port}`);
     });
