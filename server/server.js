@@ -14,7 +14,11 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
     const server = express();
 
-    server.use(cors());
+    server.use(cors({
+        origin: 'https://chat-app-a9vb.onrender.com',
+        credentials: true,
+    }));
+    
     server.use(express.json());
 
     // Connect to MongoDB
@@ -52,7 +56,7 @@ app.prepare().then(() => {
     // Socket.IO setup
     const io = socketIO(httpServer, {
         cors: {
-            origin: 'http://localhost:3000',
+            origin: 'https://chat-app-a9vb.onrender.com',
             credentials: true,
         },
     });
