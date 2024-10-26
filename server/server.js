@@ -14,7 +14,11 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
     const server = express();
 
-    server.use(cors());
+    server.use(cors({
+        origin: dev ? 'http://localhost:3000' : 'https://chat-app-a9vb.onrender.com',
+        credentials: true,
+    }));
+    
     server.use(express.json());
 
     // Connect to MongoDB
