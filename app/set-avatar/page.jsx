@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { Buffer } from "buffer";
-import loader from "../public/logo.png";
+import loader from "../public/loader.gif";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
 import { setAvatarRoute } from "../Utils/APIRoutes";
+import Image from "next/image";
 
 export default function Page() {
   const api = `https://api.multiavatar.com/4645646`;
@@ -61,7 +62,10 @@ export default function Page() {
     const fetchAvatars = async () => {
       const data = [];
       for (let i = 0; i < 4; i++) {
-        const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
+        const url = `${api}/${Math.round(Math.random() * 1000)}`;
+        console.log("Fetching avatar from:", url);
+        const image = await axios.get(url);
+
         const buffer = Buffer.from(image.data);
         data.push(buffer.toString("base64"));
       }
@@ -74,7 +78,7 @@ export default function Page() {
   return (
     <Container>
       {isLoading ? (
-        <img src={loader} alt="loader" className="loader" />
+        <Image src={loader} alt="loader" className="loader" unoptimized />
       ) : (
         <>
           <div className="title-container">
