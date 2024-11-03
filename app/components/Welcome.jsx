@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Image from "next/image"; // Next.js optimized image component
-import Robot from "../public/robot.gif"; // Adjust the path based on your Next.js structure
+import Image from "next/image"; 
+import Robot from "../public/robot.gif"; 
 
 export default function Welcome() {
   const [userName, setUserName] = useState("");
@@ -19,7 +19,7 @@ export default function Welcome() {
 
   return (
     <Container>
-      <Image src="/robot.gif" alt="Robot GIF" width={320} height={320} unoptimized />
+      <Image src={Robot} alt="Robot GIF" width={320} height={320} unoptimized />
       <h1>
         Welcome, <span>{userName}!</span>
       </h1>

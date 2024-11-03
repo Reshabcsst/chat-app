@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Image from "next/image";
 import Logo from "../public/logo.png";
 
-export default function Contacts({ contacts, changeChat }) {
+export default function Contacts({ contacts, changeChat, isSidebarOpen }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
   const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
@@ -29,7 +29,7 @@ export default function Contacts({ contacts, changeChat }) {
   return (
     <>
       {currentUserImage && currentUserName && (
-        <Container>
+        <Container isSidebarOpen={isSidebarOpen}>
           <div className="brand">
             <Image src={Logo} alt="logo" />
             <h3>REZA</h3>
@@ -78,11 +78,25 @@ const Container = styled.div`
   grid-template-rows: 10% 75% 15%;
   overflow: hidden;
   background-color: #080420;
+  transition: transform 0.3s ease;
+    transform: ${({ isSidebarOpen }) => (isSidebarOpen ? "translateX(0)" : "translateX(-100%)")};
+
+  @media screen and (min-width: 650px) {
+    transform: none; 
+  }
+     @media screen and (max-width: 650px)  {
+        grid-template-rows: 10% 80% 10%;
+     }
+
   .brand {
     display: flex;
     align-items: center;
     gap: 1rem;
     justify-content: center;
+
+      @media screen and (max-width: 650px)  {
+       padding:15px;
+     }
     img {
       height: 2rem;
       width:fit-content;
@@ -97,7 +111,7 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     overflow: auto;
-    gap: 0.8rem;
+    // gap: 0.8rem;
     &::-webkit-scrollbar {
       width: 0.2rem;
       &-thumb {
@@ -117,14 +131,34 @@ const Container = styled.div`
       gap: 1rem;
       align-items: center;
       transition: 0.5s ease-in-out;
+      border-bottom:1px solid #080420;
+
+            &:hover:not(.selected) {
+              background-color: #9a86f3b0;
+            }
+
+        @media screen and (max-width: 650px)  {
+        min-height:auto;
+        }
+
       .avatar {
         img {
           height: 3rem;
+
+           @media screen and (max-width: 720px) {
+            height:2rem
+           }
         }
       }
       .username {
         h3 {
           color: white;
+          font-size:22px;
+
+        
+      @media screen and (max-width: 650px)  {
+       font-size:14px;
+      }
         }
       }
     }
@@ -136,15 +170,15 @@ const Container = styled.div`
   .current-user {
     background-color: #0d0d30;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
+    padding:10px;
     gap: .6rem;
     .avatar {
       img {
         max-height: 4rem;
         min-height:3rem;
         max-inline-size: 100%;
-        margin:20px;
       }
     }
     .username {
@@ -160,5 +194,18 @@ const Container = styled.div`
         }
       }
     }
+        @media screen and (max-width: 720px) {
+            gap:.3rem;
+              .username {
+            h2 {
+              font-size: .8rem;
+            }
+        }
+            .avatar img{
+            max-height:3rem;
+            margin-right:10px;
+            min-height:2rem;
+            }
+         }
   }
 `;

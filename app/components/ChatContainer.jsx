@@ -1,4 +1,3 @@
-// components/ChatContainer.jsx
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import ChatInput from "./ChatInput";
@@ -7,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { sendMessageRoute, recieveMessageRoute } from "../Utils/APIRoutes";
 
-export default function ChatContainer({ currentChat, socket }) {
+export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
   const [messages, setMessages] = useState([]);
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -79,7 +78,7 @@ export default function ChatContainer({ currentChat, socket }) {
   }, [messages]);
 
   return (
-    <Container>
+    <Container  isSidebarOpen={isSidebarOpen}>
       <div className="chat-header">
         <div className="user-details">
           <div className="avatar">
@@ -128,14 +127,25 @@ const Container = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    background-color: #9a86f3;
+    padding: .5rem 2rem;
+      @media screen and (max-width: 650px)  {
+      padding:.5rem 1rem;
+      }
+
     .user-details {
       display: flex;
       align-items: center;
       gap: 1rem;
       .avatar {
+      display:flex;
+      align-items-center;
         img {
           height: 2rem;
+
+           @media screen and (max-width: 650px)  {
+           margin-left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '1.5rem')}; 
+           }
         }
       }
       .username {
