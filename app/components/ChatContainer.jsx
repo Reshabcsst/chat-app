@@ -6,12 +6,14 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { sendMessageRoute, recieveMessageRoute } from "../Utils/APIRoutes";
 
-export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
+export default function ChatContainer({ currentChat, socket, isSidebarOpen }) {
   const [messages, setMessages] = useState([]);
-  const scrollRef = useRef();
+  const [replyMessage, setReplyMessage] = useState("");
+  const [swipeActive, setSwipeActive] = useState(null); // Track active swipe
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const scrollRef = useRef();
+  const swipeData = useRef({ startX: 0, startY: 0 });
 
-  // Fetch chat messages on mount and whenever currentChat changes
   useEffect(() => {
     const fetchMessages = async () => {
       const userData = localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY);
@@ -27,15 +29,6 @@ export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
     if (currentChat) {
       fetchMessages();
     }
-  }, [currentChat]);
-
-  useEffect(() => {
-    const getCurrentChat = async () => {
-      if (currentChat) {
-        await JSON.parse(localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY))._id;
-      }
-    };
-    getCurrentChat();
   }, [currentChat]);
 
   const handleSendMsg = async (msg) => {
@@ -59,7 +52,6 @@ export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
     }
   };
 
-  // Listen for new incoming messages from the socket
   useEffect(() => {
     if (socket.current) {
       socket.current.on("msg-recieve", (msg) => {
@@ -69,16 +61,42 @@ export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
   }, []);
 
   useEffect(() => {
-    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+    if (arrivalMessage) {
+      setMessages((prev) => [...prev, arrivalMessage]);
+    }
   }, [arrivalMessage]);
 
-  // Auto scroll to the bottom when new messages arrive
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleSwipeStart = (e) => {
+    swipeData.current = {
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+    };
+  };
+
+  const handleSwipeEnd = (message, index) => (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const { startX, startY } = swipeData.current;
+
+    const diffX = startX - endX;
+    const diffY = Math.abs(startY - endY);
+
+    // Detect left swipe with a threshold to trigger reply
+    if (diffX > 50 && diffY < 20) {
+      setSwipeActive(index); // Apply slide effect to the specific message
+      setReplyMessage(message.message);
+
+      // Reset sliding after animation duration
+      setTimeout(() => setSwipeActive(null), 300); // Adjust for CSS transition duration
+    }
+  };
+
   return (
-    <Container  isSidebarOpen={isSidebarOpen}>
+    <Container isSidebarOpen={isSidebarOpen}>
       <div className="chat-header">
         <div className="user-details">
           <div className="avatar">
@@ -94,26 +112,33 @@ export default function ChatContainer({ currentChat, socket,isSidebarOpen }) {
         <Logout />
       </div>
       <div className="chat-messages">
-        {messages.map((message) => {
-          return (
-            <div ref={scrollRef} key={uuidv4()}>
-              <div
-                className={`message ${
-                  message.fromSelf ? "sended" : "recieved"
+        {messages.map((message, index) => (
+          <div
+            ref={scrollRef}
+            key={uuidv4()}
+            onTouchStart={handleSwipeStart}
+            onTouchEnd={handleSwipeEnd(message, index)} // Pass message and index
+          >
+            <div
+              className={`message ${message.fromSelf ? "sended" : "recieved"} ${swipeActive === index ? "swipe" : ""
                 }`}
-              >
-                <div className="content">
-                  <p>{message.message}</p>
-                </div>
+            >
+              <div className="content">
+                <p>{message.message}</p>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
-      <ChatInput handleSendMsg={handleSendMsg} />
+      <ChatInput
+        handleSendMsg={handleSendMsg}
+        replyMessage={replyMessage}
+        clearReply={() => setReplyMessage("")}
+      />
     </Container>
   );
 }
+
 
 const Container = styled.div`
   display: grid;
@@ -169,8 +194,15 @@ const Container = styled.div`
         border-radius: 1rem;
       }
     }
+
+     @media screen and (max-width: 650px)  {
+           padding: 1rem .5rem;
+           }
     .message {
       display: flex;
+       -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10 and IE 11 */
+      user-select: none; /* Standard syntax */
       align-items: center;
       .content {
         max-width: 40%;
@@ -179,8 +211,14 @@ const Container = styled.div`
         font-size: 1.1rem;
         border-radius: 1rem;
         color: #d1d1d1;
+        position: relative;
+        transition: all 1s ease;
+        transform: translateX(0);
         @media screen and (min-width: 720px) and (max-width: 1080px) {
           max-width: 70%;
+        }
+          @media screen and (max-width: 720px) {
+          max-width: 90%;
         }
       }
     }
@@ -195,6 +233,10 @@ const Container = styled.div`
       .content {
         background-color: #9900ff20;
       }
+    }
+
+    .swipe .content {
+      transform: translateX(-80px); /* Left swipe distance */
     }
   }
 `;

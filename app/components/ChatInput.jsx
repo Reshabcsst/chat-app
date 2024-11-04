@@ -4,24 +4,21 @@ import { IoMdSend } from "react-icons/io";
 import styled from "styled-components";
 import Picker from "emoji-picker-react";
 
-export default function ChatInput({ handleSendMsg }) {
+export default function ChatInput({ handleSendMsg, replyMessage, clearReply }) {
   const [msg, setMsg] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef();
 
-  // Toggle Emoji Picker visibility
   const handleEmojiPickerhideShow = () => {
     setShowEmojiPicker((prev) => !prev);
   };
 
-  // Handle Emoji Selection
   const handleEmojiClick = (emoji) => {
     let message = msg;
     message += emoji.emoji;
     setMsg(message);
   };
 
-  // Close emoji picker on clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
@@ -34,17 +31,23 @@ export default function ChatInput({ handleSendMsg }) {
     };
   }, []);
 
-  // Handle message send
   const sendChat = (event) => {
     event.preventDefault();
     if (msg.length > 0) {
-      handleSendMsg(msg);
+      handleSendMsg(replyMessage ? `Replying to: ${replyMessage} - ${msg}` : msg);
       setMsg("");
+      clearReply(); // Clear reply after sending
     }
   };
 
   return (
-    <Container>
+    <Container replyMessage={replyMessage}>
+      {replyMessage && (
+        <div className="reply-preview">
+          <span>{replyMessage}</span>
+          <button onClick={clearReply}>&times;</button>
+        </div>
+      )}
       <div className="button-container">
         <div className="emoji" ref={emojiPickerRef}>
           <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} />
@@ -74,6 +77,49 @@ const Container = styled.div`
   background-color: #080420;
   padding: 0 2rem;
   gap:1rem;
+  position:relative;
+
+   .reply-preview {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: -50px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 80%;
+    padding: 0.5rem 1rem;
+    background-color: #ffffff34;
+    border-radius: 1rem;
+    color: white;
+    font-size: 0.9rem;
+    gap:.5rem;
+    /* Smooth transition with both translateY and scale for animation effect */
+    transform: ${({ replyMessage }) => (replyMessage ? "translateY(0) scale(1)" : "translateY(-20px) scale(0.95)")};
+    opacity: ${({ replyMessage }) => (replyMessage ? "1" : "0")};
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+    
+    span {
+      flex: 1;
+    }
+       button {
+      border-radius: 50%;
+      display: flex;
+      font-size:20px;
+      height:30px;
+      width:30px;
+      display:flex;
+      justify-content:center:
+      align-items:center;
+      cursor:pointer;
+      justify-content: center;
+      align-items: center;
+      background-color: #9a86f3;
+      border: none;
+      }
+  }
+
+
   @media screen and (max-width: 720px) {
    padding:0 1rem;
   }
@@ -122,9 +168,11 @@ const Container = styled.div`
     width: 100%;
     border-radius: 2rem;
     display: flex;
+    position: relative;
     align-items: center;
     gap: 2rem;
     background-color: #ffffff34;
+   
     input {
       width: 90%;
       height: 60%;
