@@ -58,11 +58,16 @@ app.prepare().then(() => {
     });
 
     global.onlineUsers = new Map();
+
     io.on('connection', (socket) => {
-        global.chatSocket = socket;
+        console.log("User connected:", socket.id);
+
         socket.on('add-user', (userId) => {
             global.onlineUsers.set(userId, socket.id);
+            io.emit('user-online', userId); // Notify all clients that the user is online
+            console.log(`User ${userId} is now online`); // Debug line
         });
+
 
         socket.on('send-msg', (data) => {
             const sendUserSocket = global.onlineUsers.get(data.to);
@@ -70,5 +75,19 @@ app.prepare().then(() => {
                 socket.to(sendUserSocket).emit('msg-recieve', data.msg);
             }
         });
+
+        socket.on('disconnect', () => {
+            let userId;
+            for (let [key, value] of global.onlineUsers.entries()) {
+                if (value === socket.id) {
+                    userId = key;
+                    global.onlineUsers.delete(key);
+                    break;
+                }
+            }
+            if (userId) io.emit('user-offline', userId); // Notify all clients
+            console.log(`User ${userId} has disconnected`); // Debug line
+        });
+
     });
 });

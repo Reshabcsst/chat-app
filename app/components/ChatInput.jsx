@@ -51,7 +51,7 @@ export default function ChatInput({ handleSendMsg, replyMessage, clearReply }) {
       <div className="button-container">
         <div className="emoji" ref={emojiPickerRef}>
           <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} />
-          {showEmojiPicker && <Picker className="emoji-picker-react" onEmojiClick={handleEmojiClick} />}
+          {showEmojiPicker && <Picker width='auto' className="emoji-picker-react" onEmojiClick={handleEmojiClick} />}
         </div>
       </div>
       <form className="input-container" onSubmit={(event) => sendChat(event)}>
@@ -161,6 +161,11 @@ const Container = styled.div`
         .emoji-group:before {
           background-color: #080420;
         }
+
+          @media screen and (max-width: 650px) {
+           width:100%
+          }
+
       }
     }
   }

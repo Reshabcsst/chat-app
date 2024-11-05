@@ -32,10 +32,13 @@ export default function Page() {
     checkUser();
   }, [router]);
 
-  // Establish socket connection when the user is set
+  // Initialize socket connection once
   useEffect(() => {
-    if (currentUser) {
+    if (!socket.current) {
       socket.current = io(host);
+    }
+
+    if (currentUser) {
       socket.current.emit("add-user", currentUser._id);
     }
   }, [currentUser]);
@@ -70,6 +73,7 @@ export default function Page() {
           {isSidebarOpen ? '←' : '→'}
         </button>
         <Contacts
+          socket={socket}
           contacts={contacts}
           changeChat={handleChatChange}
           isSidebarOpen={isSidebarOpen}

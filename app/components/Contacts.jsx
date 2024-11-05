@@ -1,25 +1,59 @@
+// Contacts.js
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Logo from "../public/logo.png";
 
-export default function Contacts({ contacts, changeChat, isSidebarOpen }) {
+export default function Contacts({ contacts, changeChat, isSidebarOpen, socket }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
   const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await JSON.parse(
-        localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY)
-      );
+      const data = await JSON.parse(localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY));
       if (data) {
+        console.log(socket.current)
         setCurrentUserName(data.username);
         setCurrentUserImage(data.avatarImage);
+        socket.current?.emit('add-user', data._id);
       }
     };
     fetchData();
-  }, []);
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on('user-online', (userId) => {
+        console.log(`User ${userId} is online`); // Debugging line
+        setOnlineUsers((prev) => {
+          const updated = new Set(prev);
+          updated.add(userId);
+          return updated;
+        });
+      });
+
+      socket.current.on('user-offline', (userId) => {
+        console.log(`User ${userId} is offline`); // Debugging line
+        setOnlineUsers((prev) => {
+          const updated = new Set(prev);
+          updated.delete(userId);
+          return updated;
+        });
+      });
+    }
+
+    // Clean up listeners on unmount
+    return () => {
+      if (socket.current) {
+        socket.current.off('user-online');
+        socket.current.off('user-offline');
+      }
+    };
+  }, [socket]);
+
+
 
   const changeCurrentChat = (index, contact) => {
     setCurrentSelected(index);
@@ -35,33 +69,25 @@ export default function Contacts({ contacts, changeChat, isSidebarOpen }) {
             <h3>REZA</h3>
           </div>
           <div className="contacts">
-            {contacts.map((contact, index) => {
-              return (
-                <div
-                  key={contact._id}
-                  className={`contact ${index === currentSelected ? "selected" : ""
-                    }`}
-                  onClick={() => changeCurrentChat(index, contact)}
-                >
-                  <div className="avatar">
-                    <img
-                      src={`data:image/svg+xml;base64,${contact.avatarImage}`}
-                      alt="avatar"
-                    />
-                  </div>
-                  <div className="username">
-                    <h3>{contact.username}</h3>
-                  </div>
+            {contacts.map((contact, index) => (
+              <div
+                key={contact._id}
+                className={`contact ${index === currentSelected ? "selected" : ""}`}
+                onClick={() => changeCurrentChat(index, contact)}
+              >
+                <div className="avatar">
+                  <img src={`data:image/svg+xml;base64,${contact.avatarImage}`} alt="avatar" />
                 </div>
-              );
-            })}
+                <div className="username">
+                  <h3>{contact.username}</h3>
+                  {onlineUsers.has(contact._id) && <span className="online-status"></span>}
+                </div>
+              </div>
+            ))}
           </div>
           <div className="current-user">
             <div className="avatar">
-              <img
-                src={`data:image/svg+xml;base64,${currentUserImage}`}
-                alt="avatar"
-              />
+              <img src={`data:image/svg+xml;base64,${currentUserImage}`} alt="avatar" />
             </div>
             <div className="username">
               <h2>{currentUserName}</h2>
@@ -72,6 +98,7 @@ export default function Contacts({ contacts, changeChat, isSidebarOpen }) {
     </>
   );
 }
+
 
 const Container = styled.div`
   display: grid;
@@ -111,7 +138,7 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     overflow: auto;
-    // gap: 0.8rem;
+
     &::-webkit-scrollbar {
       width: 0.2rem;
       &-thumb {
@@ -151,15 +178,24 @@ const Container = styled.div`
         }
       }
       .username {
+       position:relative;
         h3 {
           color: white;
           font-size:22px;
-
-        
-      @media screen and (max-width: 650px)  {
-       font-size:14px;
-      }
+ 
+          @media screen and (max-width: 650px)  {
+          font-size:14px;
+          }
         }
+           .online-status {
+            position: absolute;
+            top: 6px;
+            right: -30px;
+            width: 17px;
+            height: 17px;
+            background-color: #05bb05;
+            border-radius: 50%;
+          }
       }
     }
     .selected {

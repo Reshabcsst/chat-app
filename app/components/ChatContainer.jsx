@@ -9,15 +9,16 @@ import { sendMessageRoute, recieveMessageRoute } from "../Utils/APIRoutes";
 export default function ChatContainer({ currentChat, socket, isSidebarOpen }) {
   const [messages, setMessages] = useState([]);
   const [replyMessage, setReplyMessage] = useState("");
-  const [swipeActive, setSwipeActive] = useState(null); // Track active swipe
+  const [swipeActive, setSwipeActive] = useState(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const scrollRef = useRef();
-  const swipeData = useRef({ startX: 0, startY: 0 });
+  const swipeData = useRef({ startX: 0, startY: 0, endX: 0, endY: 0 });
 
   useEffect(() => {
     const fetchMessages = async () => {
       const userData = localStorage.getItem(process.env.NEXT_PUBLIC_LOCALHOST_KEY);
       if (userData) {
+
         const data = await JSON.parse(userData);
         const response = await axios.post(recieveMessageRoute, {
           from: data._id,
@@ -49,6 +50,7 @@ export default function ChatContainer({ currentChat, socket, isSidebarOpen }) {
       const msgs = [...messages];
       msgs.push({ fromSelf: true, message: msg });
       setMessages(msgs);
+
     }
   };
 
@@ -70,28 +72,33 @@ export default function ChatContainer({ currentChat, socket, isSidebarOpen }) {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+
   const handleSwipeStart = (e) => {
     swipeData.current = {
       startX: e.touches[0].clientX,
       startY: e.touches[0].clientY,
+      endX: null,
+      endY: null,
     };
   };
 
   const handleSwipeEnd = (message, index) => (e) => {
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const { startX, startY } = swipeData.current;
+    swipeData.current.endX = e.changedTouches[0].clientX;
+    swipeData.current.endY = e.changedTouches[0].clientY;
 
+    const { startX, startY, endX, endY } = swipeData.current;
     const diffX = startX - endX;
     const diffY = Math.abs(startY - endY);
 
-    // Detect left swipe with a threshold to trigger reply
-    if (diffX > 50 && diffY < 20) {
-      setSwipeActive(index); // Apply slide effect to the specific message
+    if (diffY < 20 && diffX > 30) {
+      setSwipeActive(index);
       setReplyMessage(message.message);
+      scrollRef.current.style.setProperty('0', `${diffX}%`);
 
-      // Reset sliding after animation duration
-      setTimeout(() => setSwipeActive(null), 300); // Adjust for CSS transition duration
+      setTimeout(() => {
+        setSwipeActive(null);
+        scrollRef.current.style.setProperty('0', '0');
+      }, 400);
     }
   };
 
@@ -109,15 +116,16 @@ export default function ChatContainer({ currentChat, socket, isSidebarOpen }) {
             <h3>{currentChat.username}</h3>
           </div>
         </div>
+
         <Logout />
       </div>
-      <div className="chat-messages">
+      <div className="chat-messages" ref={scrollRef}>
         {messages.map((message, index) => (
           <div
             ref={scrollRef}
             key={uuidv4()}
             onTouchStart={handleSwipeStart}
-            onTouchEnd={handleSwipeEnd(message, index)} // Pass message and index
+            onTouchEnd={handleSwipeEnd(message, index)}
           >
             <div
               className={`message ${message.fromSelf ? "sended" : "recieved"} ${swipeActive === index ? "swipe" : ""
@@ -196,8 +204,9 @@ const Container = styled.div`
     }
 
      @media screen and (max-width: 650px)  {
-           padding: 1rem .5rem;
+           padding: 1rem 1rem;
            }
+           
     .message {
       display: flex;
        -webkit-user-select: none; /* Safari */
@@ -212,8 +221,8 @@ const Container = styled.div`
         border-radius: 1rem;
         color: #d1d1d1;
         position: relative;
-        transition: all 1s ease;
         transform: translateX(0);
+        transition: transform 0.5s ease; 
         @media screen and (min-width: 720px) and (max-width: 1080px) {
           max-width: 70%;
         }
@@ -236,7 +245,8 @@ const Container = styled.div`
     }
 
     .swipe .content {
-      transform: translateX(-80px); /* Left swipe distance */
+      // transform: translateX(-80px); 
+      transform: translateX(calc(-100% + (0 * 1%)));
     }
   }
 `;
