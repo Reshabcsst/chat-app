@@ -52,7 +52,7 @@ app.prepare().then(() => {
     // Socket.IO setup
     const io = socketIO(httpServer, {
         cors: {
-            origin: 'https://chat-app-a9vb.onrender.com',
+            origin: '*',
             credentials: true,
         },
     });
